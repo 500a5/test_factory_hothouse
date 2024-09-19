@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">test_factory_hothouse</string>
+    <string name="chat">chat</string>
+    <string name="profile">profile</string>
+    <string name="phone">Телефон</string>
+    <string name="next">Далее</string>
+    <string name="help_text_auth">Проверьте код старны и введите свой номер телефона</string>
+</resources>
