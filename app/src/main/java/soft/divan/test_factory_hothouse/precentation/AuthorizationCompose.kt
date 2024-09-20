@@ -1,5 +1,6 @@
 package soft.divan.test_factory_hothouse.precentation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import com.simon.xmaterialccp.component.MaterialCountryCodePicker
 import com.simon.xmaterialccp.data.ccpDefaultColors
 import com.simon.xmaterialccp.data.utils.checkPhoneNumber
@@ -32,7 +35,8 @@ import com.simon.xmaterialccp.data.utils.getLibCountries
 
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinApplication
-
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import soft.divan.test_factory_hothouse.R
 import soft.divan.test_factory_hothouse.app.di.dataModule
 import soft.divan.test_factory_hothouse.app.di.domainModule
@@ -45,13 +49,15 @@ import soft.divan.test_factory_hothouse.app.di.presentationModule
 @Composable
 fun AuthorizationComposePreview() {
     KoinApplication(application = { modules(presentationModule, dataModule, domainModule) }) {
-        SelectCountryWithCountryCode()
+        //SelectCountryWithCountryCode()
     }
 }
 
 
+@SuppressLint("CoroutineCreationDuringComposition", "StateFlowValueCalledInComposition")
 @Composable
 fun SelectCountryWithCountryCode(
+    navController: NavController,
     viewModel: AuthorizationViewModel = koinViewModel()
 
 ) {
@@ -62,18 +68,13 @@ fun SelectCountryWithCountryCode(
     val defaultLang = rememberSaveable { mutableStateOf("ru"/*getDefaultLangCode(context)*/) }
     val isValidPhone = remember { mutableStateOf(true) }
 
-    val isLoading = remember { mutableStateOf(false) }
 
-    if (isLoading.value) {
-        CheckAuthCodeCountryCodeCompose()
+    LaunchedEffect(Unit) {
+        viewModel.sendAuthCode.collect {
+            val fullPhoneNumber = "${phoneCode.value}${phoneNumber.value}"
+            navController.navigate(Route.Otp.route + "/${fullPhoneNumber}")
+        }
     }
-
-    val state by viewModel.sendAuthCode.collectAsState()
-    when (state) {
-        true -> CheckAuthCodeCountryCodeCompose()
-        false -> {}
-    }
-
 
     Box(
         contentAlignment = Alignment.Center,
@@ -98,6 +99,13 @@ fun SelectCountryWithCountryCode(
             ButtonNext(
                 isValidPhone, phoneNumber, phoneCode.value, defaultLang.value, viewModel
             )
+
+            /*     rememberCoroutineScope().launch() {
+                     viewModel.sendAuthCode.onEach {
+                         isLoading.value = true
+                     }.collect()
+                 }
+     */
 
         }
     }
@@ -197,3 +205,4 @@ private fun ButtonNext(
         Text(text = stringResource(R.string.next))
     }
 }
+

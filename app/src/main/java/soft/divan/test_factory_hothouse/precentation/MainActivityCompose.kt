@@ -2,11 +2,8 @@ package soft.divan.test_factory_hothouse.precentation
 
 import android.annotation.SuppressLint
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.outlined.Chat
-import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.PersonOutline
-import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -16,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -40,7 +36,12 @@ sealed class BottomItem(val title: Int, val iconId: ImageVector, val route: Stri
     data object Profile :
         BottomItem(R.string.profile, Icons.Outlined.PersonOutline, "tab_log")
 
+}
 
+sealed class Route(val route: String) {
+
+    data object Authorization : Route("tab_auth")
+    data object Otp : Route("tab_otp")
 }
 
 
@@ -82,12 +83,16 @@ fun BottomNavigation(navController: NavController) {
 fun NavGraphs(navHostController: NavHostController) {
     NavHost(
         navController = navHostController,
-        startDestination = navHostController.currentBackStackEntryAsState().value?.destination?.route
-            ?: BottomItem.Chat.route
+        startDestination =  Route.Authorization.route
     ) {
-        
-        composable("ff") {
 
+        composable(Route.Authorization.route) {
+            SelectCountryWithCountryCode(navHostController)
+        }
+
+        composable(Route.Otp.route + "/{phoneNumber}") { navBackStackEntry ->
+            val phoneNumber = navBackStackEntry.arguments?.getString("phoneNumber")
+            phoneNumber?.let { CheckAuthCodeCountryCodeCompose(it, navHostController) }
         }
 
         composable(BottomItem.Chat.route) {
@@ -105,7 +110,7 @@ fun NavGraphs(navHostController: NavHostController) {
 fun MainScreen() {
     val navController = rememberNavController()
     Scaffold(
-        bottomBar = { BottomNavigation(navController = navController) }
+        //bottomBar = { BottomNavigation(navController = navController) }
     ) {
 
         NavGraphs(navHostController = navController)

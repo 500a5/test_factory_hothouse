@@ -11,6 +11,7 @@ import soft.divan.test_factory_hothouse.domain.rest.RetrofitFactory
 import soft.divan.test_factory_hothouse.domain.rest.interseptors.AuthAuthenticator
 import soft.divan.test_factory_hothouse.domain.rest.interseptors.AuthInterceptor
 import soft.divan.test_factory_hothouse.domain.rest.interseptors.LoggingInterceptor
+import soft.divan.test_factory_hothouse.domain.usecases.CheckAuthCodeUseCase
 import soft.divan.test_factory_hothouse.domain.usecases.SendAuthCodeUseCase
 
 val domainModule = module {
@@ -29,7 +30,7 @@ val domainModule = module {
 
     single<MainRepository> { MainRepositoryImpl(get()) }
 
-    single<AuthRepository> { AuthRepositoryImpl(get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
 
     single { ApiFactory(get()).serverApi }
 
@@ -39,6 +40,7 @@ val domainModule = module {
 
 
     factory { SendAuthCodeUseCase(get()) }
+    factory { CheckAuthCodeUseCase(get()) }
 
 
 }

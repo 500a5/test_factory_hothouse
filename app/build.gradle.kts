@@ -113,4 +113,6 @@ dependencies {
 
     implementation ("androidx.datastore:datastore-preferences:1.1.1")
 
+    implementation ("com.github.composeuisuite:ohteepee:1.0.10")
+
 }

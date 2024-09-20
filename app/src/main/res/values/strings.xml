@@ -5,4 +5,6 @@
     <string name="phone">Телефон</string>
     <string name="next">Далее</string>
     <string name="help_text_auth">Проверьте код старны и введите свой номер телефона</string>
+    <string name="enter_code">Введите код</string>
+    <string name="sms_help">Мы отправили SMS с кодом проверки на Ваш телефон %1$s</string>
 </resources>

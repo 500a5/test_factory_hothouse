@@ -1,18 +1,33 @@
 package soft.divan.test_factory_hothouse.data.repositoryImp
 
+import soft.divan.test_factory_hothouse.data.dataStore.TokenManager
 import soft.divan.test_factory_hothouse.domain.api.AuthServiceApi
 import soft.divan.test_factory_hothouse.domain.api.ServerApi
+import soft.divan.test_factory_hothouse.domain.entities.CheckAuthCode
 import soft.divan.test_factory_hothouse.domain.entities.PhoneBase
 import soft.divan.test_factory_hothouse.domain.entities.Success
 import soft.divan.test_factory_hothouse.domain.repository.AuthRepository
 import soft.divan.test_factory_hothouse.domain.utils.Rezult
 import soft.divan.test_factory_hothouse.domain.utils.safeHttpResult
 
-class AuthRepositoryImpl(private val api: AuthServiceApi): AuthRepository {
+class AuthRepositoryImpl(private val api: AuthServiceApi, private val tokenManager: TokenManager): AuthRepository {
     override suspend fun sendAuthCode(phone: String): Rezult<Boolean> {
         return when (val result = safeHttpResult { api.sendVerificationCode(PhoneBase(phone)) }) {
             is Rezult.Success -> {
                Rezult.Success(result.data.isSuccess)
+            }
+
+            is Rezult.Error -> {
+                Rezult.Error(result.exception)
+            }
+        }
+    }
+
+    override suspend fun checkAuthCodeUseCase(phone: String, otpCode: String): Rezult<Boolean> {
+        return when (val result = safeHttpResult { api.checkAuthCode(CheckAuthCode(phone, otpCode)) }) {
+            is Rezult.Success -> {
+                tokenManager.saveToken(result.data.accessToken)
+               Rezult.Success(result.data.isUserExists)
             }
 
             is Rezult.Error -> {
