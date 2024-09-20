@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import soft.divan.test_factory_hothouse.domain.usecases.CheckAuthCodeUseCase
+import soft.divan.test_factory_hothouse.domain.usecases.GetCurrentUserUseCase
 import soft.divan.test_factory_hothouse.domain.utils.Rezult
 
 class CheckAuthCodeViewModel(private val checkAuthCodeUseCase: CheckAuthCodeUseCase) : ViewModel() {
@@ -20,9 +21,11 @@ class CheckAuthCodeViewModel(private val checkAuthCodeUseCase: CheckAuthCodeUseC
     fun checkAuthCode(phone: String, otpCode: String){
         viewModelScope.launch(Dispatchers.IO) {
             when (val result = checkAuthCodeUseCase(phone, otpCode)){
-                is Rezult.Error -> TODO()
+                is Rezult.Error -> {}
                 is Rezult.Success -> {_checkAuthCode.tryEmit(result.data) }
             }
         }
     }
+
+
 }

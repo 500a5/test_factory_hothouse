@@ -12,6 +12,7 @@ import soft.divan.test_factory_hothouse.domain.rest.interseptors.AuthAuthenticat
 import soft.divan.test_factory_hothouse.domain.rest.interseptors.AuthInterceptor
 import soft.divan.test_factory_hothouse.domain.rest.interseptors.LoggingInterceptor
 import soft.divan.test_factory_hothouse.domain.usecases.CheckAuthCodeUseCase
+import soft.divan.test_factory_hothouse.domain.usecases.GetCurrentUserUseCase
 import soft.divan.test_factory_hothouse.domain.usecases.SendAuthCodeUseCase
 
 val domainModule = module {
@@ -41,6 +42,7 @@ val domainModule = module {
 
     factory { SendAuthCodeUseCase(get()) }
     factory { CheckAuthCodeUseCase(get()) }
+    factory { GetCurrentUserUseCase(get()) }
 
 
 }

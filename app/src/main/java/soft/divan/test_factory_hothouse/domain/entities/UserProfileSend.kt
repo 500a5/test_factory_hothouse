@@ -23,7 +23,7 @@ data class UserProfileSend(
     val vk: String?,
     @SerializedName("instagram")
     val instagram: String?,
-    @SerializedName("instagram")
+    @SerializedName("status")
     val status: String?,
     @SerializedName("last")
     val last: String?,

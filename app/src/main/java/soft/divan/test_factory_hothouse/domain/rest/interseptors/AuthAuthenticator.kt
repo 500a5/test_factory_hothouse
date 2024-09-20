@@ -12,6 +12,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import soft.divan.test_factory_hothouse.BuildConfig
 import soft.divan.test_factory_hothouse.data.dataStore.TokenManager
+import soft.divan.test_factory_hothouse.data.entity.Tokens
 import soft.divan.test_factory_hothouse.domain.api.AuthServiceApi
 import soft.divan.test_factory_hothouse.domain.entities.RefreshToken
 import soft.divan.test_factory_hothouse.domain.entities.Token
@@ -25,14 +26,14 @@ class AuthAuthenticator (
             tokenManager.getToken().first()
         }
         return runBlocking {
-            val newToken = getNewToken(token)
+            val newToken = getNewToken(token?.accessToken ?: "")
 
-            if (!newToken.isSuccessful || newToken.body() == null) { //Couldn't refresh the token, so restart the login process
+            if (!newToken.isSuccessful || newToken.body() == null) {
                 tokenManager.deleteToken()
             }
 
             newToken.body()?.let {
-                tokenManager.saveToken(it.accessToken)
+                tokenManager.saveToken(Tokens(refreshToken = it.refreshToken, accessToken = it.accessToken))
                 response.request().newBuilder()
                     .header("Authorization", "Bearer ${it.accessToken}")
                     .build()
@@ -40,7 +41,7 @@ class AuthAuthenticator (
         }
     }
 
-    private suspend fun getNewToken(refreshToken: String?): retrofit2.Response<Token> {
+    private suspend fun getNewToken(refreshToken: String): retrofit2.Response<Token> {
         val loggingInterceptor = HttpLoggingInterceptor()
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         val okHttpClient = OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
@@ -51,6 +52,6 @@ class AuthAuthenticator (
             .client(okHttpClient)
             .build()
         val service = retrofit.create(AuthServiceApi::class.java)
-        return service.refreshToken(RefreshToken(refreshToken!!))
+        return service.refreshToken(RefreshToken(refreshToken))
     }
 }

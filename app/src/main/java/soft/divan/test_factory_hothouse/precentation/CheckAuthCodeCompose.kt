@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -50,37 +51,35 @@ fun CheckAuthCodeComposePreview() {
 @Composable
 fun CheckAuthCodeCountryCodeCompose(
     phone: String,
-      navController: NavController,
+    navController: NavController,
     viewModel: CheckAuthCodeViewModel = koinViewModel(),
 
 
-) {
+    ) {
 
     val otpCode = remember { mutableStateOf("") }
 
 
-
-        if (otpCode.value.filter { !it.isWhitespace() }.length==6)
-            viewModel.checkAuthCode(phone,otpCode.value)
-    
-
+    if (otpCode.value.filter { !it.isWhitespace() }.length == 6)
+        viewModel.checkAuthCode(phone, otpCode.value)
 
 
     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-
 
         Column {
 
 
             TextEnterOtp()
             Spacer(modifier = Modifier.height(16.dp))
-            phone?.let { TextHelp(it) }
+            TextHelp(phone)
 
             Spacer(modifier = Modifier.height(24.dp))
             Otp(otpCode)
+
         }
     }
 }
+
 
 @Composable
 private fun TextEnterOtp() {
