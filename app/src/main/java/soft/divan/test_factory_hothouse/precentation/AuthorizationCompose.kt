@@ -9,11 +9,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +29,7 @@ import com.simon.xmaterialccp.component.MaterialCountryCodePicker
 import com.simon.xmaterialccp.data.ccpDefaultColors
 import com.simon.xmaterialccp.data.utils.checkPhoneNumber
 import com.simon.xmaterialccp.data.utils.getLibCountries
+
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinApplication
 
@@ -44,8 +44,8 @@ import soft.divan.test_factory_hothouse.app.di.presentationModule
 @Preview(showBackground = true, wallpaper = Wallpapers.NONE)
 @Composable
 fun AuthorizationComposePreview() {
-    KoinApplication(application = { modules(presentationModule, dataModule, domainModule) }){
-        SelectCountryWithCountryCode ()
+    KoinApplication(application = { modules(presentationModule, dataModule, domainModule) }) {
+        SelectCountryWithCountryCode()
     }
 }
 
@@ -61,6 +61,20 @@ fun SelectCountryWithCountryCode(
     val phoneNumber = rememberSaveable { mutableStateOf("") }
     val defaultLang = rememberSaveable { mutableStateOf("ru"/*getDefaultLangCode(context)*/) }
     val isValidPhone = remember { mutableStateOf(true) }
+
+    val isLoading = remember { mutableStateOf(false) }
+
+    if (isLoading.value) {
+        CheckAuthCodeCountryCodeCompose()
+    }
+
+    val state by viewModel.sendAuthCode.collectAsState()
+    when (state) {
+        true -> CheckAuthCodeCountryCodeCompose()
+        false -> {}
+    }
+
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
@@ -161,7 +175,7 @@ private fun ButtonNext(
     phoneNumber: MutableState<String>,
     phoneCode: String,
     defaultLang: String,
-    authorizationViewModel: AuthorizationViewModel
+    viewModel: AuthorizationViewModel
 ) {
     OutlinedButton(
         onClick = {
@@ -171,8 +185,10 @@ private fun ButtonNext(
                 fullPhoneNumber = fullPhoneNumber,
                 countryCode = defaultLang
             )
-            //if (isValidPhone.value)
-                authorizationViewModel.sendAuthCode(fullPhoneNumber)
+            if (isValidPhone.value) {
+                viewModel.sendAuthCode(fullPhoneNumber)
+            }
+
         },
         modifier = Modifier
             .fillMaxWidth()

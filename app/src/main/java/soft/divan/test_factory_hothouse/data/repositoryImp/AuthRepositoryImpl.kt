@@ -9,10 +9,10 @@ import soft.divan.test_factory_hothouse.domain.utils.Rezult
 import soft.divan.test_factory_hothouse.domain.utils.safeHttpResult
 
 class AuthRepositoryImpl(private val api: AuthServiceApi): AuthRepository {
-    override suspend fun sendAuthCode(phone: String): Rezult<Success> {
+    override suspend fun sendAuthCode(phone: String): Rezult<Boolean> {
         return when (val result = safeHttpResult { api.sendVerificationCode(PhoneBase(phone)) }) {
             is Rezult.Success -> {
-                Rezult.Success(result.data)
+               Rezult.Success(result.data.isSuccess)
             }
 
             is Rezult.Error -> {

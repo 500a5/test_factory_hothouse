@@ -10,14 +10,13 @@ import org.koin.test.check.checkModules
 import soft.divan.test_factory_hothouse.app.di.dataModule
 import soft.divan.test_factory_hothouse.app.di.domainModule
 import soft.divan.test_factory_hothouse.app.di.presentationModule
-import soft.divan.test_factory_hothouse.app.di.useCasesModule
 
 class CheckModulesTest : KoinTest {
 
     @Test
     fun verifyKoinApp() {
         koinApplication {
-            modules(presentationModule, useCasesModule, dataModule, domainModule)
+            modules(presentationModule, dataModule, domainModule)
             checkModules()
         }
     }
