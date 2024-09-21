@@ -30,7 +30,7 @@ fun GreetingPreview() {
 }
 
 sealed class BottomItem(val title: Int, val iconId: ImageVector, val route: String) {
-    data object Chat :
+    data object Chats :
         BottomItem(R.string.chat, Icons.Outlined.Chat, "tab_status")
 
     data object Profile :
@@ -42,12 +42,13 @@ sealed class Route(val route: String) {
 
     data object Authorization : Route("tab_auth")
     data object Otp : Route("tab_otp")
+    data object Chat : Route("tab_chat")
 }
 
 
 @Composable
 fun BottomNavigation(navController: NavController) {
-    val listItems = listOf(BottomItem.Chat, BottomItem.Profile)
+    val listItems = listOf(BottomItem.Chats, BottomItem.Profile)
 
     NavigationBar() {
         val backStackEntry by navController.currentBackStackEntryAsState()
@@ -95,9 +96,17 @@ fun NavGraphs(navHostController: NavHostController) {
             phoneNumber?.let { CheckAuthCodeCountryCodeCompose(it, navHostController) }
         }
 
-        composable(BottomItem.Chat.route) {
-            //todo
+        composable(BottomItem.Chats.route) {
+          ChatsListScreen(navHostController)
         }
+
+        composable(Route.Chat.route+ "/{idChat}") {navBackStackEntry ->
+            val idChat = navBackStackEntry.arguments?.getString("idChat")
+            idChat?.let { ChatScreen(idChat = idChat) }
+
+        }
+
+
         composable(BottomItem.Profile.route) {
             //todo
         }
@@ -109,8 +118,15 @@ fun NavGraphs(navHostController: NavHostController) {
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+    val route = navController.currentBackStackEntryAsState().value?.destination?.route
+        ?: Route.Authorization.route
     Scaffold(
-        //bottomBar = { BottomNavigation(navController = navController) }
+
+        bottomBar = {
+            if (route == BottomItem.Chats.route || route == BottomItem.Profile.route) BottomNavigation(
+                navController = navController
+            )
+        }
     ) {
 
         NavGraphs(navHostController = navController)
