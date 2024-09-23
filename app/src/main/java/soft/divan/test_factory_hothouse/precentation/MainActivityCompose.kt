@@ -34,7 +34,7 @@ sealed class BottomItem(val title: Int, val iconId: ImageVector, val route: Stri
         BottomItem(R.string.chat, Icons.Outlined.Chat, "tab_status")
 
     data object Profile :
-        BottomItem(R.string.profile, Icons.Outlined.PersonOutline, "tab_log")
+        BottomItem(R.string.profile, Icons.Outlined.PersonOutline, "tab_profile")
 
 }
 
@@ -61,7 +61,6 @@ fun BottomNavigation(navController: NavController) {
                     navController.navigate(item.route) {
                         popUpTo(item.route) {
                             inclusive = true
-                            saveState = true
                         }
                         launchSingleTop = true
                         restoreState = true
@@ -115,7 +114,7 @@ fun NavGraphs(navHostController: NavHostController) {
 
 
         composable(BottomItem.Profile.route) {
-            //todo
+           ProfileScreen()
         }
 
     }

@@ -210,6 +210,7 @@ private fun UiState(
                 (viewModel.sendAuthCode as UiState.Error).message,
                 Toast.LENGTH_LONG
             ).show()
+            viewModel.sendAuthCode = UiState.Empty
         }
 
         UiState.Empty -> {}

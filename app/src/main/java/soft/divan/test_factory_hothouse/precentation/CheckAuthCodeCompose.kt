@@ -62,7 +62,10 @@ fun CheckAuthCodeCountryCodeCompose(
     val otpCode = remember { mutableStateOf("") }
 
     if (otpCode.value.filter { !it.isWhitespace() }.length == 6)
-        viewModel.checkAuthCode(phone, otpCode.value)
+        LaunchedEffect(Unit) {
+
+            viewModel.checkAuthCode(phone, otpCode.value)
+        }
 
     Column(
         modifier = Modifier
