@@ -1,6 +1,7 @@
 package soft.divan.test_factory_hothouse.precentation
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
 import com.simon.xmaterialccp.component.MaterialCountryCodePicker
 import com.simon.xmaterialccp.data.ccpDefaultColors
 import com.simon.xmaterialccp.data.utils.checkPhoneNumber
@@ -35,14 +35,13 @@ import com.simon.xmaterialccp.data.utils.getLibCountries
 
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinApplication
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
 import soft.divan.test_factory_hothouse.R
 import soft.divan.test_factory_hothouse.app.di.dataModule
 import soft.divan.test_factory_hothouse.app.di.domainModule
 import soft.divan.test_factory_hothouse.precentation.ui.theme.Roboto
 
 import soft.divan.test_factory_hothouse.app.di.presentationModule
+import soft.divan.test_factory_hothouse.precentation.util.UiState
 
 
 @Preview(showBackground = true, wallpaper = Wallpapers.NONE)
@@ -67,14 +66,6 @@ fun SelectCountryWithCountryCode(
     val phoneNumber = rememberSaveable { mutableStateOf("") }
     val defaultLang = rememberSaveable { mutableStateOf("ru"/*getDefaultLangCode(context)*/) }
     val isValidPhone = remember { mutableStateOf(true) }
-
-
-    LaunchedEffect(Unit) {
-        viewModel.sendAuthCode.collect {
-            val fullPhoneNumber = "${phoneCode.value}${phoneNumber.value}"
-            navController.navigate(Route.Otp.route + "/${fullPhoneNumber}")
-        }
-    }
 
     Box(
         contentAlignment = Alignment.Center,
@@ -103,6 +94,8 @@ fun SelectCountryWithCountryCode(
 
         }
     }
+
+    UiState(viewModel, phoneCode, phoneNumber, navController)
 }
 
 
@@ -197,6 +190,38 @@ private fun ButtonNext(
             .height(50.dp)
     ) {
         Text(text = stringResource(R.string.next))
+    }
+}
+
+@Composable
+private fun UiState(
+    viewModel: AuthorizationViewModel,
+    phoneCode: MutableState<String>,
+    phoneNumber: MutableState<String>,
+    navController: NavController
+) {
+    when (viewModel.sendAuthCode) {
+        is UiState.Error -> {
+            Toast.makeText(
+                LocalContext.current,
+                (viewModel.sendAuthCode as UiState.Error).message,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+
+        UiState.Empty -> {}
+        
+        UiState.Loading -> {
+            MyProgressBar()
+        }
+
+        is UiState.Success -> {
+            LaunchedEffect(Unit) {
+                val fullPhoneNumber = "${phoneCode.value}${phoneNumber.value}"
+                navController.navigate(Route.Otp.route + "/${fullPhoneNumber}")
+                viewModel.sendAuthCode = UiState.Empty
+            }
+        }
     }
 }
 
