@@ -15,7 +15,7 @@ class AuthRepositoryImpl(private val api: AuthServiceApi, private val tokenManag
     AuthRepository {
     override suspend fun sendAuthCode(phone: String): Rezult<Boolean> {
         return when (val result =
-            safeHttpResult { api.sendVerificationCode(PhoneBase("+79219999999")) }) {
+            safeHttpResult { api.sendVerificationCode(PhoneBase(phone)) }) {
             is Rezult.Success -> {
                Rezult.Success(result.data.isSuccess)
             }
@@ -28,7 +28,7 @@ class AuthRepositoryImpl(private val api: AuthServiceApi, private val tokenManag
 
     override suspend fun checkAuthCodeUseCase(phone: String, otpCode: String): Rezult<Boolean> {
         return when (val result =
-            safeHttpResult { api.checkAuthCode(CheckAuthCode("+79219999999", otpCode)) }) {
+            safeHttpResult { api.checkAuthCode(CheckAuthCode(phone, otpCode)) }) {
             is Rezult.Success -> {
                 tokenManager.saveToken(
                     Tokens(
@@ -47,7 +47,7 @@ class AuthRepositoryImpl(private val api: AuthServiceApi, private val tokenManag
 
     override suspend fun registrationUser(phone: String, name: String, userName: String): Rezult<Unit> {
         return when (val result =
-            safeHttpResult { api.registerUser(RegisterIn("+79219999999", name, userName)) }) {
+            safeHttpResult { api.registerUser(RegisterIn(phone, name, userName)) }) {
             is Rezult.Success -> {
                 tokenManager.saveToken(
                     Tokens(
