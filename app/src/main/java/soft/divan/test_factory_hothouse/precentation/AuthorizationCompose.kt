@@ -100,12 +100,6 @@ fun SelectCountryWithCountryCode(
                 isValidPhone, phoneNumber, phoneCode.value, defaultLang.value, viewModel
             )
 
-            /*     rememberCoroutineScope().launch() {
-                     viewModel.sendAuthCode.onEach {
-                         isLoading.value = true
-                     }.collect()
-                 }
-     */
 
         }
     }

@@ -7,4 +7,10 @@
     <string name="help_text_auth">Проверьте код старны и введите свой номер телефона</string>
     <string name="enter_code">Введите код</string>
     <string name="sms_help">Мы отправили SMS с кодом проверки на Ваш телефон %1$s</string>
+    <string name="nickname_input_promt">Никнейм может содержать только заглавные, строчные латинские буквы (a–z), цифры (0–1), симоволы (-  _) и должен быть длиннее 5 символов</string>
+    <string name="enter_name">Введите имя</string>
+    <string name="registration">Регистрация</string>
+    <string name="phone_number">Номер телефона: %1$s</string>
+    <string name="continue_text">Продолжить</string>
+    <string name="enter_nickname">Введите никнейм</string>
 </resources>

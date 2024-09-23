@@ -43,6 +43,7 @@ sealed class Route(val route: String) {
     data object Authorization : Route("tab_auth")
     data object Otp : Route("tab_otp")
     data object Chat : Route("tab_chat")
+    data object Registration: Route("tab_registration")
 }
 
 
@@ -105,6 +106,12 @@ fun NavGraphs(navHostController: NavHostController) {
             idChat?.let { ChatScreen(idChat = idChat) }
 
         }
+
+        composable(Route.Registration.route ) { navBackStackEntry ->
+           // val phoneNumber = navBackStackEntry.arguments?.getString("phoneNumber")
+           RegistrationScreen("x", navHostController)
+        }
+
 
 
         composable(BottomItem.Profile.route) {
