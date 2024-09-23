@@ -1,5 +1,8 @@
 package soft.divan.test_factory_hothouse.precentation
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.BufferOverflow
@@ -9,25 +12,24 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import soft.divan.test_factory_hothouse.domain.usecases.RegistrationUserUseCase
 import soft.divan.test_factory_hothouse.domain.utils.Rezult
+import soft.divan.test_factory_hothouse.precentation.util.UiState
 
 class RegistrationViewModel(private val registrationUserUseCase: RegistrationUserUseCase) : ViewModel() {
 
-    private val _registrationUser = MutableSharedFlow<Rezult<Boolean>>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val registrationUser: SharedFlow<Rezult<Boolean>> = _registrationUser.asSharedFlow()
+    var registrationUser: UiState<Unit> by mutableStateOf(UiState.Empty)
 
     fun registrationUser(phone: String, name: String, userName: String ) {
+        registrationUser = UiState.Empty
         viewModelScope.launch() {
-            _registrationUser.tryEmit(registrationUserUseCase(phone, name, userName))
-            when (val result = registrationUserUseCase(phone, name, userName)) {
-                is Rezult.Error -> TODO()
+            registrationUser = when (registrationUserUseCase(phone, name, userName)) {
+                is Rezult.Error -> UiState.Error("eroror")
                 is Rezult.Success -> {
-                    _registrationUser.tryEmit(result)
+                    UiState.Success(Unit)
+
                 }
             }
         }
     }
 
 }
+

@@ -2,6 +2,7 @@ package soft.divan.test_factory_hothouse.precentation
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +32,8 @@ import androidx.navigation.NavController
 import com.simon.xmaterialccp.component.MaterialCountryCodePicker
 import com.simon.xmaterialccp.data.ccpDefaultColors
 import com.simon.xmaterialccp.data.utils.checkPhoneNumber
+import com.simon.xmaterialccp.data.utils.getDefaultLangCode
+import com.simon.xmaterialccp.data.utils.getDefaultPhoneCode
 import com.simon.xmaterialccp.data.utils.getLibCountries
 
 import org.koin.androidx.compose.koinViewModel
@@ -62,37 +65,37 @@ fun SelectCountryWithCountryCode(
 ) {
 
     val context = LocalContext.current
-    val phoneCode = remember { mutableStateOf("+7"/*getDefaultPhoneCode(context)*/) }
+    val phoneCode = remember { mutableStateOf(getDefaultPhoneCode(context)) }
     val phoneNumber = rememberSaveable { mutableStateOf("") }
-    val defaultLang = rememberSaveable { mutableStateOf("ru"/*getDefaultLangCode(context)*/) }
+    val defaultLang = rememberSaveable { mutableStateOf(getDefaultLangCode(context)) }
     val isValidPhone = remember { mutableStateOf(true) }
 
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
 
-            TextPhone()
+        TextPhone()
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            TextHelp()
+        TextHelp()
 
-            Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-            CountryCodePicker(phoneCode, defaultLang, isValidPhone, phoneNumber)
+        CountryCodePicker(phoneCode, defaultLang, isValidPhone, phoneNumber)
 
-            Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-            ButtonNext(
-                isValidPhone, phoneNumber, phoneCode.value, defaultLang.value, viewModel
-            )
+        ButtonNext(
+            isValidPhone, phoneNumber, phoneCode.value, defaultLang.value, viewModel
+        )
 
 
-        }
     }
 
     UiState(viewModel, phoneCode, phoneNumber, navController)
@@ -210,7 +213,7 @@ private fun UiState(
         }
 
         UiState.Empty -> {}
-        
+
         UiState.Loading -> {
             MyProgressBar()
         }

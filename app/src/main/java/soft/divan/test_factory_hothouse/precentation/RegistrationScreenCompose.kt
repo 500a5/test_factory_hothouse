@@ -1,6 +1,8 @@
 package soft.divan.test_factory_hothouse.precentation
 
 import android.annotation.SuppressLint
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,12 +16,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,12 +41,13 @@ import soft.divan.test_factory_hothouse.app.di.dataModule
 import soft.divan.test_factory_hothouse.app.di.domainModule
 import soft.divan.test_factory_hothouse.app.di.presentationModule
 import soft.divan.test_factory_hothouse.precentation.ui.theme.Roboto
+import soft.divan.test_factory_hothouse.precentation.util.UiState
 
 @Preview(showBackground = true, wallpaper = Wallpapers.NONE)
 @Composable
 fun RegistrationScreenPreview() {
     KoinApplication(application = { modules(presentationModule, dataModule, domainModule) }) {
-       // RegistrationScreen("+79606277700")
+        // RegistrationScreen()
     }
 }
 
@@ -58,39 +63,38 @@ fun RegistrationScreen(
     val userName = remember { mutableStateOf("") }
     val isValidUsername = remember { mutableStateOf(true) }
 
-  /*  LaunchedEffect(Unit) {
-        viewModel.sendAuthCode.collect {
-            val fullPhoneNumber = "${phoneCode.value}${phoneNumber.value}"
-            navController.navigate(Route.Otp.route + "/${fullPhoneNumber}")
-        }
-    }*/
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-            TextRegistration()
+        TextRegistration()
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            TextPhone(phone = phone)
+        TextPhone(phone = phone)
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            EnterName(name)
+        EnterName(name)
 
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            UserNickname(userName, isValidUsername)
+        UserNickname(userName, isValidUsername)
 
-            TextHelpNickName(isValidUsername)
+        TextHelpNickName(isValidUsername)
 
-            Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-            BtnContinue(isValidUsername, viewModel, userName.value, name.value, phone)
-        }
-
+        BtnContinue(isValidUsername, viewModel, userName.value, name.value, phone)
     }
+
+
+    UiState(viewModel = viewModel, navController = navController)
+
 
 }
 
@@ -183,5 +187,36 @@ private fun BtnContinue(
 }
 
 private fun checkValidUserName(userName: String): Boolean {
-    return userName.matches(Regex("^[A-Za-z0-9_-]+$")) && userName.length>=5
+    return userName.matches(Regex("^[A-Za-z0-9_-]+$")) && userName.length >= 5
 }
+
+@Composable
+private fun UiState(
+    viewModel: RegistrationViewModel,
+    navController: NavController
+) {
+    when (viewModel.registrationUser) {
+        is UiState.Error -> {
+            Toast.makeText(
+                LocalContext.current,
+                (viewModel.registrationUser as UiState.Error).message,
+                Toast.LENGTH_LONG
+            ).show()
+            viewModel.registrationUser = UiState.Empty
+        }
+
+        UiState.Empty -> {}
+
+        UiState.Loading -> {
+            MyProgressBar()
+        }
+
+        is UiState.Success -> {
+            LaunchedEffect(Unit) {
+                navController.navigate(BottomItem.Chats)
+                viewModel.registrationUser = UiState.Empty
+            }
+        }
+    }
+}
+

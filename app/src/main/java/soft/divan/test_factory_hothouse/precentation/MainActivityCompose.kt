@@ -107,9 +107,9 @@ fun NavGraphs(navHostController: NavHostController) {
 
         }
 
-        composable(Route.Registration.route ) { navBackStackEntry ->
-           // val phoneNumber = navBackStackEntry.arguments?.getString("phoneNumber")
-           RegistrationScreen("x", navHostController)
+        composable(Route.Registration.route + "/{phoneNumber}") { navBackStackEntry ->
+            val phoneNumber = navBackStackEntry.arguments?.getString("phoneNumber")
+            phoneNumber?.let { RegistrationScreen(it, navHostController) }
         }
 
 

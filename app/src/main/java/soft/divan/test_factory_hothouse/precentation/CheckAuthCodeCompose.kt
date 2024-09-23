@@ -1,5 +1,6 @@
 package soft.divan.test_factory_hothouse.precentation
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,12 +14,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -38,6 +41,7 @@ import soft.divan.test_factory_hothouse.app.di.dataModule
 import soft.divan.test_factory_hothouse.app.di.domainModule
 import soft.divan.test_factory_hothouse.app.di.presentationModule
 import soft.divan.test_factory_hothouse.precentation.ui.theme.Roboto
+import soft.divan.test_factory_hothouse.precentation.util.UiState
 
 @Preview(showBackground = true, wallpaper = Wallpapers.NONE)
 @Composable
@@ -53,31 +57,31 @@ fun CheckAuthCodeCountryCodeCompose(
     phone: String,
     navController: NavController,
     viewModel: CheckAuthCodeViewModel = koinViewModel(),
-
-
-    ) {
+) {
 
     val otpCode = remember { mutableStateOf("") }
-
 
     if (otpCode.value.filter { !it.isWhitespace() }.length == 6)
         viewModel.checkAuthCode(phone, otpCode.value)
 
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
 
-        Column {
+        TextEnterOtp()
+        Spacer(modifier = Modifier.height(16.dp))
+        TextHelp(phone)
 
+        Spacer(modifier = Modifier.height(24.dp))
+        Otp(otpCode)
 
-            TextEnterOtp()
-            Spacer(modifier = Modifier.height(16.dp))
-            TextHelp(phone)
-
-            Spacer(modifier = Modifier.height(24.dp))
-            Otp(otpCode)
-
-        }
     }
+
+    UiState(viewModel, phone, navController)
 }
 
 
@@ -131,4 +135,39 @@ private fun Otp(otpValue: MutableState<String>) {
         ), modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     )
+}
+
+@Composable
+private fun UiState(
+    viewModel: CheckAuthCodeViewModel,
+    phone: String,
+    navController: NavController
+) {
+    when (viewModel.checkAuthCode) {
+        is UiState.Error -> {
+            Toast.makeText(
+                LocalContext.current,
+                (viewModel.checkAuthCode as UiState.Error).message,
+                Toast.LENGTH_LONG
+            ).show()
+            viewModel.checkAuthCode = UiState.Empty
+
+        }
+
+        UiState.Empty -> {}
+
+        UiState.Loading -> {
+            MyProgressBar()
+        }
+
+        is UiState.Success -> {
+            LaunchedEffect(Unit) {
+                if ((viewModel.checkAuthCode as UiState.Success<Boolean>).data)
+                    navController.navigate(BottomItem.Chats.route)
+                else
+                    navController.navigate(Route.Registration.route + "/${phone}")
+                viewModel.checkAuthCode = UiState.Empty
+            }
+        }
+    }
 }

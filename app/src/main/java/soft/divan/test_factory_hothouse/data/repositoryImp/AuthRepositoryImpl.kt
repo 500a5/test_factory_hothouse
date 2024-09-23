@@ -45,7 +45,7 @@ class AuthRepositoryImpl(private val api: AuthServiceApi, private val tokenManag
         }
     }
 
-    override suspend fun registrationUser(phone: String, name: String, userName: String): Rezult<Boolean> {
+    override suspend fun registrationUser(phone: String, name: String, userName: String): Rezult<Unit> {
         return when (val result =
             safeHttpResult { api.registerUser(RegisterIn("+79219999999", name, userName)) }) {
             is Rezult.Success -> {
@@ -55,7 +55,7 @@ class AuthRepositoryImpl(private val api: AuthServiceApi, private val tokenManag
                         accessToken = result.data.accessToken
                     )
                 )
-                Rezult.Success(true)
+                Rezult.Success(Unit)
             }
 
             is Rezult.Error -> {

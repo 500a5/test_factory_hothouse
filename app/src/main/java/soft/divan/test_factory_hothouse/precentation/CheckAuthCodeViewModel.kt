@@ -1,5 +1,8 @@
 package soft.divan.test_factory_hothouse.precentation
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -11,18 +14,21 @@ import kotlinx.coroutines.launch
 import soft.divan.test_factory_hothouse.domain.usecases.CheckAuthCodeUseCase
 import soft.divan.test_factory_hothouse.domain.usecases.GetCurrentUserUseCase
 import soft.divan.test_factory_hothouse.domain.utils.Rezult
+import soft.divan.test_factory_hothouse.precentation.util.UiState
 
 class CheckAuthCodeViewModel(private val checkAuthCodeUseCase: CheckAuthCodeUseCase) : ViewModel() {
-    private val _checkAuthCode = MutableSharedFlow<Boolean>(
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val checkAuthCode: SharedFlow<Boolean> = _checkAuthCode.asSharedFlow()
-    fun checkAuthCode(phone: String, otpCode: String){
+    var checkAuthCode: UiState<Boolean> by mutableStateOf(UiState.Empty)
+    fun checkAuthCode(phone: String, otpCode: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val result = checkAuthCodeUseCase(phone, otpCode)){
-                is Rezult.Error -> {}
-                is Rezult.Success -> {_checkAuthCode.tryEmit(result.data) }
+            checkAuthCode = UiState.Loading
+            checkAuthCode = when (val result = checkAuthCodeUseCase(phone, otpCode)) {
+                is Rezult.Error -> {
+                    UiState.Error("error")
+                }
+
+                is Rezult.Success -> {
+                    UiState.Success(result.data)
+                }
             }
         }
     }
