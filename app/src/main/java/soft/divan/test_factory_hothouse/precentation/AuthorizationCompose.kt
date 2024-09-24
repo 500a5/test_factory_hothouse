@@ -196,6 +196,7 @@ private fun ButtonNext(
     }
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 private fun UiState(
     viewModel: AuthorizationViewModel,
@@ -203,14 +204,14 @@ private fun UiState(
     phoneNumber: MutableState<String>,
     navController: NavController
 ) {
-    when (viewModel.sendAuthCode) {
+    when (viewModel.sendAuthCode.collectAsState().value) {
         is UiState.Error -> {
             Toast.makeText(
                 LocalContext.current,
-                (viewModel.sendAuthCode as UiState.Error).message,
+                (viewModel.sendAuthCode.value as UiState.Error).message,
                 Toast.LENGTH_LONG
             ).show()
-            viewModel.sendAuthCode = UiState.Empty
+            viewModel.sendAuthCode.value = UiState.Empty
         }
 
         UiState.Empty -> {}
@@ -223,7 +224,7 @@ private fun UiState(
             LaunchedEffect(Unit) {
                 val fullPhoneNumber = "${phoneCode.value}${phoneNumber.value}"
                 navController.navigate(Route.Otp.route + "/${fullPhoneNumber}")
-                viewModel.sendAuthCode = UiState.Empty
+                viewModel.sendAuthCode.value = UiState.Empty
             }
         }
     }

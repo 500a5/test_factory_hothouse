@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -190,19 +191,20 @@ private fun checkValidUserName(userName: String): Boolean {
     return userName.matches(Regex("^[A-Za-z0-9_-]+$")) && userName.length >= 5
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 private fun UiState(
     viewModel: RegistrationViewModel,
     navController: NavController
 ) {
-    when (viewModel.registrationUser) {
+    when (viewModel.registrationUser.collectAsState().value) {
         is UiState.Error -> {
             Toast.makeText(
                 LocalContext.current,
-                (viewModel.registrationUser as UiState.Error).message,
+                (viewModel.registrationUser.value as UiState.Error).message,
                 Toast.LENGTH_LONG
             ).show()
-            viewModel.registrationUser = UiState.Empty
+            viewModel.registrationUser.value = UiState.Empty
         }
 
         UiState.Empty -> {}
@@ -214,7 +216,7 @@ private fun UiState(
         is UiState.Success -> {
             LaunchedEffect(Unit) {
                 navController.navigate(BottomItem.Chats)
-                viewModel.registrationUser = UiState.Empty
+                viewModel.registrationUser.value = UiState.Empty
             }
         }
     }

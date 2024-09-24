@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -16,12 +17,12 @@ import soft.divan.test_factory_hothouse.precentation.util.UiState
 
 class RegistrationViewModel(private val registrationUserUseCase: RegistrationUserUseCase) : ViewModel() {
 
-    var registrationUser: UiState<Unit> by mutableStateOf(UiState.Empty)
+    var registrationUser =  MutableStateFlow<UiState<Unit>>(UiState.Empty)
 
     fun registrationUser(phone: String, name: String, userName: String ) {
-        registrationUser = UiState.Empty
+        registrationUser.value = UiState.Empty
         viewModelScope.launch() {
-            registrationUser = when (registrationUserUseCase(phone, name, userName)) {
+            registrationUser.value = when (registrationUserUseCase(phone, name, userName)) {
                 is Rezult.Error -> UiState.Error("eroror")
                 is Rezult.Success -> {
                     UiState.Success(Unit)

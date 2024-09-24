@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -17,11 +18,11 @@ import soft.divan.test_factory_hothouse.domain.utils.Rezult
 import soft.divan.test_factory_hothouse.precentation.util.UiState
 
 class CheckAuthCodeViewModel(private val checkAuthCodeUseCase: CheckAuthCodeUseCase) : ViewModel() {
-    var checkAuthCode: UiState<Boolean> by mutableStateOf(UiState.Empty)
+    var checkAuthCode = MutableStateFlow<UiState<Boolean>>(UiState.Empty)
     fun checkAuthCode(phone: String, otpCode: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            checkAuthCode = UiState.Loading
-            checkAuthCode = when (val result = checkAuthCodeUseCase(phone, otpCode)) {
+            checkAuthCode.value = UiState.Loading
+            checkAuthCode.value = when (val result = checkAuthCodeUseCase(phone, otpCode)) {
                 is Rezult.Error -> {
                     UiState.Error("error")
                 }

@@ -1,5 +1,6 @@
 package soft.divan.test_factory_hothouse.precentation
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -140,21 +142,22 @@ private fun Otp(otpValue: MutableState<String>) {
     )
 }
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 private fun UiState(
     viewModel: CheckAuthCodeViewModel,
     phone: String,
     navController: NavController
 ) {
-    when (viewModel.checkAuthCode) {
+
+    when (viewModel.checkAuthCode.collectAsState().value) {
         is UiState.Error -> {
             Toast.makeText(
                 LocalContext.current,
-                (viewModel.checkAuthCode as UiState.Error).message,
+                (viewModel.checkAuthCode.value as UiState.Error).message,
                 Toast.LENGTH_LONG
             ).show()
-            viewModel.checkAuthCode = UiState.Empty
-
+            viewModel.checkAuthCode.value = UiState.Empty
         }
 
         UiState.Empty -> {}
@@ -164,13 +167,11 @@ private fun UiState(
         }
 
         is UiState.Success -> {
-            LaunchedEffect(Unit) {
-                if ((viewModel.checkAuthCode as UiState.Success<Boolean>).data)
-                    navController.navigate(BottomItem.Chats.route)
-                else
-                    navController.navigate(Route.Registration.route + "/${phone}")
-                viewModel.checkAuthCode = UiState.Empty
-            }
+            if ((viewModel.checkAuthCode.value as UiState.Success<Boolean>).data)
+                navController.navigate(BottomItem.Chats.route)
+            else
+                navController.navigate(Route.Registration.route + "/${phone}")
+            viewModel.checkAuthCode.value = UiState.Empty
         }
     }
 }
