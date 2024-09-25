@@ -2,8 +2,6 @@ package soft.divan.test_factory_hothouse.app
 
 
 import android.app.Application
-import com.orhanobut.hawk.Hawk
-
 
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -30,8 +28,6 @@ class App : Application() {
             androidContext(app)
             modules(listOf(dataModule, domainModule, presentationModule))
         }
-
-        Hawk.init(applicationContext).build()
 
     }
 

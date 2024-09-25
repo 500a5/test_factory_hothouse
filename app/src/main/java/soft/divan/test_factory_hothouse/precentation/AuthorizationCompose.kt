@@ -3,7 +3,6 @@ package soft.divan.test_factory_hothouse.precentation
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -211,10 +210,10 @@ private fun UiState(
                 (viewModel.sendAuthCode.value as UiState.Error).message,
                 Toast.LENGTH_LONG
             ).show()
-            viewModel.sendAuthCode.value = UiState.Empty
+            viewModel.sendAuthCode.value = UiState.Init
         }
 
-        UiState.Empty -> {}
+        UiState.Init -> {}
 
         UiState.Loading -> {
             MyProgressBar()
@@ -224,7 +223,7 @@ private fun UiState(
             LaunchedEffect(Unit) {
                 val fullPhoneNumber = "${phoneCode.value}${phoneNumber.value}"
                 navController.navigate(Route.Otp.route + "/${fullPhoneNumber}")
-                viewModel.sendAuthCode.value = UiState.Empty
+                viewModel.sendAuthCode.value = UiState.Init
             }
         }
     }

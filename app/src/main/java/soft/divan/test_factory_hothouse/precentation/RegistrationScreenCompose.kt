@@ -3,7 +3,6 @@ package soft.divan.test_factory_hothouse.precentation
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,7 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinApplication
@@ -204,10 +202,10 @@ private fun UiState(
                 (viewModel.registrationUser.value as UiState.Error).message,
                 Toast.LENGTH_LONG
             ).show()
-            viewModel.registrationUser.value = UiState.Empty
+            viewModel.registrationUser.value = UiState.Init
         }
 
-        UiState.Empty -> {}
+        UiState.Init -> {}
 
         UiState.Loading -> {
             MyProgressBar()
@@ -216,7 +214,7 @@ private fun UiState(
         is UiState.Success -> {
             LaunchedEffect(Unit) {
                 navController.navigate(BottomItem.Chats)
-                viewModel.registrationUser.value = UiState.Empty
+                viewModel.registrationUser.value = UiState.Init
             }
         }
     }

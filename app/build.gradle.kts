@@ -81,43 +81,40 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     // Koin
-    implementation("io.insert-koin:koin-core:$koinVer")
-    implementation("io.insert-koin:koin-android:$koinVer")
-    implementation("io.insert-koin:koin-androidx-compose:$koinVer")
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
     // Koin for Tests
-    testImplementation("io.insert-koin:koin-test-junit4:3.1.2")
+    testImplementation(libs.koin.test.junit4)
 
     // Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:3.9.0")
-    implementation("com.squareup.moshi:moshi-adapters:1.13.0")
-    implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
-    implementation ("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.moshi)
+    implementation(libs.logging.interceptor)
+    implementation(libs.moshi.adapters)
+    implementation(libs.moshi.kotlin)
+    implementation (libs.converter.gson)
 
     // Room
-    kapt("androidx.room:room-compiler:$roomVer")
-    implementation("androidx.room:room-ktx:$roomVer")
-    implementation("androidx.room:room-runtime:$roomVer")
-    testImplementation("androidx.room:room-testing:$roomVer")
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+    testImplementation(libs.androidx.room.testing)
 
-    //Hawk
-    implementation(libs.hawk)
+    implementation (libs.androidx.navigation.compose)
+    implementation (libs.androidx.material.icons.extended)
 
-    implementation ("androidx.navigation:navigation-compose:2.8.0")
-    implementation ("androidx.compose.material:material-icons-extended")
+    implementation (libs.xmaterialccp)
 
-    implementation ("com.github.TuleSimon:xMaterialccp:v2.13")
+    implementation (libs.androidx.ui.text.google.fonts)
 
-    implementation ("androidx.compose.ui:ui-text-google-fonts:1.7.2")
+    implementation (libs.androidx.datastore.preferences)
 
-    implementation ("androidx.datastore:datastore-preferences:1.1.1")
-
-    implementation ("com.github.composeuisuite:ohteepee:1.0.10")
+    implementation (libs.ohteepee)
 
 
-    implementation ("androidx.compose.runtime:runtime-livedata:1.7.2")
-    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
-    implementation ("androidx.compose.runtime:runtime:1.7.2")
-    implementation ("androidx.navigation:navigation-compose:2.8.1")
+    implementation (libs.androidx.runtime.livedata)
+    implementation (libs.androidx.lifecycle.runtime.ktx.v286)
+    implementation (libs.androidx.runtime)
+    implementation (libs.androidx.navigation.compose.v281)
 }

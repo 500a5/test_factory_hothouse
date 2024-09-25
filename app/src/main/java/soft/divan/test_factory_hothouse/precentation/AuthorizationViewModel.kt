@@ -1,9 +1,6 @@
 package soft.divan.test_factory_hothouse.precentation
 
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +12,7 @@ import soft.divan.test_factory_hothouse.precentation.util.UiState
 
 class AuthorizationViewModel(private val sendAuthCodeUseCase: SendAuthCodeUseCase) : ViewModel() {
 
-    var sendAuthCode = MutableStateFlow<UiState<Boolean>>(UiState.Empty)
+    var sendAuthCode = MutableStateFlow<UiState<Boolean>>(UiState.Init)
 
     fun sendAuthCode(phone: String) {
         sendAuthCode.value = UiState.Loading
