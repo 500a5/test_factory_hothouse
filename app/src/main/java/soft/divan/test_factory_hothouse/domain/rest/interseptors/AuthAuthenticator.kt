@@ -2,56 +2,65 @@ package soft.divan.test_factory_hothouse.domain.rest.interseptors
 
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okhttp3.Authenticator
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import soft.divan.test_factory_hothouse.BuildConfig
 import soft.divan.test_factory_hothouse.data.dataStore.TokenManager
 import soft.divan.test_factory_hothouse.data.entity.Tokens
 import soft.divan.test_factory_hothouse.domain.api.AuthServiceApi
 import soft.divan.test_factory_hothouse.domain.entities.RefreshToken
-import soft.divan.test_factory_hothouse.domain.entities.Token
 
-class AuthAuthenticator (
+
+/**
+ * Поставщик AuthServiceApi: Мы создаем функцию () -> AuthServiceApi, которая будет возвращать экземпляр AuthServiceApi по мере необходимости.
+ * Это позволяет избежать создания AuthServiceApi в момент создания AuthAuthenticator,
+ * что устраняет циклическую зависимость.
+ */
+class AuthAuthenticator(
     private val tokenManager: TokenManager,
-): Authenticator {
+    private val authServiceApiProvider: () -> AuthServiceApi
+) : Authenticator {
+
+    private val tokenLock = Mutex() // Механизм синхронизации для блокировки
 
     override fun authenticate(route: Route?, response: Response): Request? {
-        val token = runBlocking {
-            tokenManager.getToken().first()
+        // Проверяем количество попыток по заголовку "Retry-Attempt"
+        val attemptCount = response.request().header("Retry-Attempt")?.toIntOrNull() ?: 0
+        if (attemptCount >= 2) {
+            return null // Прекращаем попытки после двух неудачных запросов
         }
+
         return runBlocking {
-            val newToken = getNewToken(token?.accessToken ?: "")
+            // Синхронизация запросов за новым токеном
+            tokenLock.withLock {
+                val token = tokenManager.getToken().first()
 
-            if (!newToken.isSuccessful || newToken.body() == null) {
-                tokenManager.deleteToken()
-            }
+                val newTokenResponse = authServiceApiProvider().refreshToken(RefreshToken(token?.refreshToken ?: ""))
 
-            newToken.body()?.let {
-                tokenManager.saveToken(Tokens(refreshToken = it.refreshToken, accessToken = it.accessToken))
+                if (!newTokenResponse.isSuccessful || newTokenResponse.body() == null) {
+                    tokenManager.deleteToken() // Удаляем токен, если запрос неудачный
+                    return@runBlocking null
+                }
+
+                val newToken = newTokenResponse.body()!!
+
+                // Сохраняем новый токен
+                tokenManager.saveToken(
+                    Tokens(
+                        refreshToken = newToken.refreshToken,
+                        accessToken = newToken.accessToken
+                    )
+                )
+
+                // Создаем новый запрос с обновленным токеном
                 response.request().newBuilder()
-                    .header("Authorization", "Bearer ${it.accessToken}")
+                    .header("Authorization", "Bearer ${newToken.accessToken}")
                     .build()
             }
         }
     }
 
-    private suspend fun getNewToken(refreshToken: String): retrofit2.Response<Token> {
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        val okHttpClient = OkHttpClient.Builder().addInterceptor(loggingInterceptor).build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BuildConfig.HOST)
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
-            .build()
-        val service = retrofit.create(AuthServiceApi::class.java)
-        return service.refreshToken(RefreshToken(refreshToken))
-    }
 }

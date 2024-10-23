@@ -4,6 +4,7 @@ import org.koin.dsl.module
 import soft.divan.test_factory_hothouse.data.repositoryImp.AuthRepositoryImpl
 import soft.divan.test_factory_hothouse.data.repositoryImp.MainRepositoryImpl
 import soft.divan.test_factory_hothouse.domain.api.ApiFactory
+import soft.divan.test_factory_hothouse.domain.api.AuthServiceApi
 import soft.divan.test_factory_hothouse.domain.repository.AuthRepository
 import soft.divan.test_factory_hothouse.domain.repository.MainRepository
 import soft.divan.test_factory_hothouse.domain.rest.OkHttpClientFactory
@@ -19,16 +20,21 @@ import soft.divan.test_factory_hothouse.domain.usecases.SendAuthCodeUseCase
 val domainModule = module {
 
 
-    factory { OkHttpClientFactory(get(), get(), get()) }
+    single { OkHttpClientFactory(get(), get(), get()) }
 
-    factory { RetrofitFactory(get()) }
+    single { RetrofitFactory(get()) }
 
     single { LoggingInterceptor() }
 
     single { AuthInterceptor(get()) }
 
-    single { AuthAuthenticator(get()) }
+    /**  single { ApiFactory(get()).authServiceApi }
+     * Регистрация зависимостей: Обратите внимание, что AuthServiceApi зарегистрирован отдельно. Теперь,
+     * когда AuthAuthenticator будет запрашиваться, он сможет получить AuthServiceApi через функцию-поставщик.
+     */
+    single { ApiFactory(get()).authServiceApi }
 
+    single { AuthAuthenticator(get()) { get<AuthServiceApi>() } }
 
     single<MainRepository> { MainRepositoryImpl(get()) }
 
@@ -36,7 +42,6 @@ val domainModule = module {
 
     single { ApiFactory(get()).serverApi }
 
-    single { ApiFactory(get()).authServiceApi }
 
     single { AuthInterceptor(get()) }
 
