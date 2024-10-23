@@ -12,6 +12,7 @@ import soft.divan.test_factory_hothouse.data.dataStore.TokenManager
 import soft.divan.test_factory_hothouse.data.entity.Tokens
 import soft.divan.test_factory_hothouse.domain.api.AuthServiceApi
 import soft.divan.test_factory_hothouse.domain.entities.RefreshToken
+import soft.divan.test_factory_hothouse.domain.entities.Token
 
 
 /**
@@ -21,46 +22,55 @@ import soft.divan.test_factory_hothouse.domain.entities.RefreshToken
  */
 class AuthAuthenticator(
     private val tokenManager: TokenManager,
-    private val authServiceApiProvider: () -> AuthServiceApi
+    private val authServiceApi: Lazy<AuthServiceApi>
 ) : Authenticator {
 
     private val tokenLock = Mutex() // Механизм синхронизации для блокировки
 
     override fun authenticate(route: Route?, response: Response): Request? {
+
         // Проверяем количество попыток по заголовку "Retry-Attempt"
         val attemptCount = response.request().header("Retry-Attempt")?.toIntOrNull() ?: 0
-        if (attemptCount >= 2) {
-            return null // Прекращаем попытки после двух неудачных запросов
+        if (attemptCount >= 5) {
+            return null // Прекращаем попытки после пяти неудачных запросов
         }
 
         return runBlocking {
-            // Синхронизация запросов за новым токеном
             tokenLock.withLock {
                 val token = tokenManager.getToken().first()
 
-                val newTokenResponse = authServiceApiProvider().refreshToken(RefreshToken(token?.refreshToken ?: ""))
-
-                if (!newTokenResponse.isSuccessful || newTokenResponse.body() == null) {
-                    tokenManager.deleteToken() // Удаляем токен, если запрос неудачный
-                    return@runBlocking null
-                }
-
-                val newToken = newTokenResponse.body()!!
-
-                // Сохраняем новый токен
-                tokenManager.saveToken(
-                    Tokens(
-                        refreshToken = newToken.refreshToken,
-                        accessToken = newToken.accessToken
-                    )
-                )
+                // Получаем новый токен
+                val newToken = refreshAuthToken(token?.refreshToken ?: "") ?: return@runBlocking null
 
                 // Создаем новый запрос с обновленным токеном
-                response.request().newBuilder()
-                    .header("Authorization", "Bearer ${newToken.accessToken}")
-                    .build()
+                createAuthenticatedRequest(response, newToken.accessToken)
             }
         }
     }
 
+    private suspend fun refreshAuthToken(refreshToken: String): Token? {
+        val response = authServiceApi.value.refreshToken(RefreshToken(refreshToken))
+
+        return if (response.isSuccessful && response.body() != null) {
+            // Сохраняем новый токен
+            val newToken = response.body()!!
+            tokenManager.saveToken(
+                Tokens(
+                    refreshToken = newToken.refreshToken,
+                    accessToken = newToken.accessToken
+                )
+            )
+            newToken
+        } else {
+            // Удаляем токен, если запрос неудачный
+            tokenManager.deleteToken()
+            null
+        }
+    }
+
+    private fun createAuthenticatedRequest(response: Response, accessToken: String): Request {
+        return response.request().newBuilder()
+            .header("Authorization", "Bearer $accessToken")
+            .build()
+    }
 }

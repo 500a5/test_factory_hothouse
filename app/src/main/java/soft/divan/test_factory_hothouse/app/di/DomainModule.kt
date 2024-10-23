@@ -20,9 +20,9 @@ import soft.divan.test_factory_hothouse.domain.usecases.SendAuthCodeUseCase
 val domainModule = module {
 
 
-    single { OkHttpClientFactory(get(), get(), get()) }
+    factory { OkHttpClientFactory(get(), get(), get()) }
 
-    single { RetrofitFactory(get()) }
+    factory { RetrofitFactory(get()) }
 
     single { LoggingInterceptor() }
 
@@ -32,15 +32,15 @@ val domainModule = module {
      * Регистрация зависимостей: Обратите внимание, что AuthServiceApi зарегистрирован отдельно. Теперь,
      * когда AuthAuthenticator будет запрашиваться, он сможет получить AuthServiceApi через функцию-поставщик.
      */
-    single { ApiFactory(get()).authServiceApi }
+    factory { ApiFactory(get()).authServiceApi }
 
-    single { AuthAuthenticator(get()) { get<AuthServiceApi>() } }
+    factory { AuthAuthenticator(get(), lazy { get () }) }
 
     single<MainRepository> { MainRepositoryImpl(get()) }
 
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
 
-    single { ApiFactory(get()).serverApi }
+    factory { ApiFactory(get()).serverApi }
 
 
     single { AuthInterceptor(get()) }
