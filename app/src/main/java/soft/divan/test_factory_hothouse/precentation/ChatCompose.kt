@@ -46,7 +46,7 @@ import org.koin.compose.KoinApplication
 import soft.divan.test_factory_hothouse.app.di.dataModule
 import soft.divan.test_factory_hothouse.app.di.domainModule
 import soft.divan.test_factory_hothouse.app.di.presentationModule
-import soft.divan.test_factory_hothouse.data.entity.Message
+import soft.divan.test_factory_hothouse.data.remote.entity.Message
 import soft.divan.test_factory_hothouse.data.util.UtilData
 import soft.divan.test_factory_hothouse.precentation.ui.theme.Roboto
 import androidx.compose.material3.Text

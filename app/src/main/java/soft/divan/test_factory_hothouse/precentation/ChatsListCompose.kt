@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -32,8 +31,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
-import soft.divan.test_factory_hothouse.data.entity.Chat
-import soft.divan.test_factory_hothouse.data.entity.Message
+import soft.divan.test_factory_hothouse.domain.model.Chat
 import soft.divan.test_factory_hothouse.data.util.UtilData
 import soft.divan.test_factory_hothouse.precentation.ui.theme.Roboto
 
@@ -101,7 +99,7 @@ fun ChannelListItem(
                 fontSize = 18.sp,
             )
 
-            val lastMessageText = chat.messages.firstOrNull()?.text ?: "..."
+            val lastMessageText = chat.messages.firstOrNull()?.message ?: "..."
             Text(
                 text = lastMessageText,
                 maxLines = 1,

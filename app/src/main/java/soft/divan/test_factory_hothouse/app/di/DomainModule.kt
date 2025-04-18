@@ -1,17 +1,17 @@
 package soft.divan.test_factory_hothouse.app.di
 
 import org.koin.dsl.module
-import soft.divan.test_factory_hothouse.data.repositoryImp.AuthRepositoryImpl
-import soft.divan.test_factory_hothouse.data.repositoryImp.MainRepositoryImpl
-import soft.divan.test_factory_hothouse.domain.api.ApiFactory
-import soft.divan.test_factory_hothouse.domain.api.AuthServiceApi
+import soft.divan.test_factory_hothouse.data.remote.repositoryImp.AuthRepositoryImpl
+import soft.divan.test_factory_hothouse.data.remote.repositoryImp.MainRepositoryImpl
+import soft.divan.test_factory_hothouse.data.remote.api.ApiFactory
+import soft.divan.test_factory_hothouse.data.remote.api.AuthServiceApi
 import soft.divan.test_factory_hothouse.domain.repository.AuthRepository
 import soft.divan.test_factory_hothouse.domain.repository.MainRepository
-import soft.divan.test_factory_hothouse.domain.rest.OkHttpClientFactory
-import soft.divan.test_factory_hothouse.domain.rest.RetrofitFactory
-import soft.divan.test_factory_hothouse.domain.rest.interseptors.AuthAuthenticator
-import soft.divan.test_factory_hothouse.domain.rest.interseptors.AuthInterceptor
-import soft.divan.test_factory_hothouse.domain.rest.interseptors.LoggingInterceptor
+import soft.divan.test_factory_hothouse.data.remote.rest.OkHttpClientFactory
+import soft.divan.test_factory_hothouse.data.remote.rest.RetrofitFactory
+import soft.divan.test_factory_hothouse.data.remote.rest.interseptors.AuthAuthenticator
+import soft.divan.test_factory_hothouse.data.remote.rest.interseptors.AuthInterceptor
+import soft.divan.test_factory_hothouse.data.remote.rest.interseptors.LoggingInterceptor
 import soft.divan.test_factory_hothouse.domain.usecases.CheckAuthCodeUseCase
 import soft.divan.test_factory_hothouse.domain.usecases.GetCurrentUserUseCase
 import soft.divan.test_factory_hothouse.domain.usecases.RegistrationUserUseCase
